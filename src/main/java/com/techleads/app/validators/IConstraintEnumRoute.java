@@ -18,12 +18,12 @@ import javax.validation.Payload;
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = LocationConstraintEnumValidator.class)
-public @interface ConstraintEnumLocation {
+@Constraint(validatedBy = RouteConstraintEnumValidator.class)
+public @interface IConstraintEnumRoute {
 
 	Class<? extends Enum<?>> enumClass();
 
-	String message() default "Location must be of HYD/CHN/BLR";
+	String message() default "Route code must be of A/B/C";
 
 	Class<?>[] groups() default {};
 

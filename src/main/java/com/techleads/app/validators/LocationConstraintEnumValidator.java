@@ -7,11 +7,11 @@ import java.util.stream.Stream;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class LocationConstraintEnumValidator implements ConstraintValidator<ConstraintEnumLocation, String> {
+public class LocationConstraintEnumValidator implements ConstraintValidator<IConstraintEnumLocation, String> {
 	private List<String> acceptedValues;
 
 	@Override
-	public void initialize(ConstraintEnumLocation constraintAnnotation) {
+	public void initialize(IConstraintEnumLocation constraintAnnotation) {
 		acceptedValues = Stream.of(constraintAnnotation.enumClass().getEnumConstants()).map(Enum::name)
 				.collect(Collectors.toList());
 	}
