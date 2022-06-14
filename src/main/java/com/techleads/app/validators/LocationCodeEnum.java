@@ -9,19 +9,19 @@ import lombok.ToString;
 @ToString
 public enum LocationCodeEnum {
 
-	HYD("HYD"), BLR("HYD"), CHN("CHN");
+	HYD_CDE("HYD"), BLR_CDE("HYD"), CHN_CDE("CHN");
 
 	private final String location;
 
 	public boolean isHYDCode() {
-		return HYD.getLocation().equals(this.location);
+		return HYD_CDE.getLocation().equals(this.location);
 	}
 
 	public boolean isBLRCode() {
-		return BLR.getLocation().equals(this.location);
+		return BLR_CDE.getLocation().equals(this.location);
 	}
 
 	public boolean isCHNCode() {
-		return CHN.getLocation().equals(this.location);
+		return CHN_CDE.getLocation().equals(this.location);
 	}
 }
