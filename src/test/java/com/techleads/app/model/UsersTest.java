@@ -26,25 +26,20 @@ public class UsersTest {
     public void testUserNoViolations() {
         Users user = buildUser();
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
-        Iterator<ConstraintViolation<Users>> itr = violations.iterator();
+
         assertTrue(violations.isEmpty());
+        assertThat(violations.size()).isEqualTo(0);
 
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"test",})
-    void isBlank_ShouldReturnTrueForNullOrBlankStrings(String input) {
-//        assertTrue(Strings.isBlank(input));
-        assertTrue(Strings.isNotBlank(input));
-    }
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @NullSource
     @ValueSource(strings = {"", "  "})
-    public void testUserWith_location_Empty_Violations(String value) {
+    public void testUserWith_location_Empty_And_Null_Violations(String customValue) {
         Users user = buildUser();
 
-        user.setLocation(value);
+        user.setLocation(customValue);
 
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
         assertEquals(2, violations.size());
@@ -53,9 +48,9 @@ public class UsersTest {
                 .sorted((a, b) -> a.getMessage().compareTo(b.getMessage()))
                 .toList();
 
-        assertEquals("location", constraintViolations.get(0).getPropertyPath().toString());
-        assertEquals("Location field must not be empty", constraintViolations.get(0).getMessage());
-        assertEquals("Location must be of HYD/CHN/BLR", constraintViolations.get(1).getMessage());
+        assertThat("location").isEqualTo(constraintViolations.get(0).getPropertyPath().toString());
+        assertThat("Location field must not be empty").isEqualTo(constraintViolations.get(0).getMessage());
+        assertThat("Location must be of HYD/CHN/BLR").isEqualTo(constraintViolations.get(1).getMessage());
     }
 
 
@@ -73,9 +68,9 @@ public class UsersTest {
                 .sorted((a, b) -> a.getMessage().compareTo(b.getMessage()))
                 .toList();
 
-        assertEquals("location", constraintViolations.get(0).getPropertyPath().toString());
-        assertEquals("Location field must not be empty", constraintViolations.get(0).getMessage());
-        assertEquals("Location must be of HYD/CHN/BLR", constraintViolations.get(1).getMessage());
+        assertThat("location").isEqualTo(constraintViolations.get(0).getPropertyPath().toString());
+        assertThat("Location field must not be empty").isEqualTo(constraintViolations.get(0).getMessage());
+        assertThat("Location must be of HYD/CHN/BLR").isEqualTo(constraintViolations.get(1).getMessage());
     }
 
     static Stream<String> blankOrNullStrings() {
@@ -105,7 +100,6 @@ public class UsersTest {
     }
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
-//    @ValueSource(strings = {"HYD_CDE", "BLR_CDE","CHN_CDE"})
     @MethodSource("acceptedLocatonCodes")
     public void testUserWith_location_AcceptedValues_Violations(String customInput) {
         Users user = buildUser();
@@ -118,23 +112,6 @@ public class UsersTest {
 
 
     }
-
-
-    public Users buildUser() {
-
-        Users u = new Users();
-
-        u.setId(101);
-        u.setLocation("HYD_CDE");
-        u.setName("Madhav");
-
-        List<Route> routes = new ArrayList<>();
-        routes.add(new Route(101, "A", u));
-        u.setRoutes(routes);
-
-        return u;
-    }
-
 
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
@@ -155,12 +132,6 @@ public class UsersTest {
         assertEquals("Route code must be of A/B/C", constraintViolations.get(1).getMessage());
     }
 
-    static Stream<Arguments> invalidRoutes() {
-        return Stream.of(
-                Arguments.of(Arrays.asList(new Route(101,"test"),new Route(102,"AD"))),
-                Arguments.of(Arrays.asList(new Route(103,"DA"),new Route(104,"EF")))
-        );
-    }
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @MethodSource("invalidRoutes")
@@ -176,6 +147,58 @@ public class UsersTest {
 
         assertEquals("routes", constraintViolations.get(0).getPropertyPath().toString());
         assertEquals("Route code must be of A/B/C", constraintViolations.get(0).getMessage());
+    }
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @MethodSource("validRoutes")
+    public void testUserWith_routes_Accepted_Codes_ZeroViolations(List<Route> routes) {
+        Users user = buildUser();
+        user.setRoutes(routes);
+
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        assertThat(violations.size()).isEqualTo(0);
+        assertThat(violations.isEmpty()).isTrue();
+
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .toList();
+
+
+    }
+
+    private static Stream<Arguments> invalidRoutes() {
+        return Stream.of(
+                Arguments.of(Arrays.asList(new Route(101, "test"), new Route(102, "AD"))),
+                Arguments.of(Arrays.asList(new Route(103, "DA"), new Route(104, "EF")))
+        );
+    }
+
+    private static Stream<Arguments> validRoutes() {
+        return Stream.of(
+                Arguments.of(Arrays.asList(new Route(101, "A"), new Route(102, "B"), new Route(102, "C"))),
+                Arguments.of(Arrays.asList(new Route(103, "B"), new Route(104, "C"), new Route(102, "A")))
+        );
+    }
+
+    public Users buildUser() {
+
+        Users u = new Users();
+
+        u.setId(101);
+        u.setLocation("HYD_CDE");
+        u.setName("Madhav");
+
+        List<Route> routes = new ArrayList<>();
+        routes.add(new Route(101, "A", u));
+        u.setRoutes(routes);
+
+        return u;
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"test", "abc"})
+    void isBlank_ShouldReturnTrueForNonNullOrNonBlankStrings(String input) {
+//        assertTrue(Strings.isBlank(input));
+        assertTrue(Strings.isNotBlank(input));
     }
 
 }
