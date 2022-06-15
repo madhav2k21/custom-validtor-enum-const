@@ -3,6 +3,7 @@ package com.techleads.app.model;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -10,10 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,12 +81,14 @@ public class UsersTest {
     static Stream<String> blankOrNullStrings() {
         return Stream.of("", " ", null);
     }
+
     static Stream<String> acceptedLocatonCodes() {
         return Stream.of("HYD_CDE", "BLR_CDE", "CHN_CDE");
     }
 
+
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
-    @ValueSource(strings = {"madhav", "dill","test"})
+    @ValueSource(strings = {"madhav", "dill", "test"})
     public void testUserWith_location_InvalidValues_Violations(String customInput) {
         Users user = buildUser();
 
@@ -119,6 +119,7 @@ public class UsersTest {
 
     }
 
+
     public Users buildUser() {
 
         Users u = new Users();
@@ -132,6 +133,49 @@ public class UsersTest {
         u.setRoutes(routes);
 
         return u;
+    }
+
+
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @NullSource
+    public void testUserWith_routes_Empty_And_Null_Violations(List<Route> routes) {
+        Users user = buildUser();
+        user.setRoutes(routes);
+
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        assertEquals(2, violations.size());
+
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .sorted((a, b) -> b.getMessage().compareTo(a.getMessage()))
+                .toList();
+
+        assertEquals("routes", constraintViolations.get(0).getPropertyPath().toString());
+        assertEquals("Route field must not be empty", constraintViolations.get(0).getMessage());
+        assertEquals("Route code must be of A/B/C", constraintViolations.get(1).getMessage());
+    }
+
+    static Stream<Arguments> invalidRoutes() {
+        return Stream.of(
+                Arguments.of(Arrays.asList(new Route(101,"test"),new Route(102,"AD"))),
+                Arguments.of(Arrays.asList(new Route(103,"DA"),new Route(104,"EF")))
+        );
+    }
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @MethodSource("invalidRoutes")
+    public void testUserWith_routes_Invalid_Codes_Violations(List<Route> routes) {
+        Users user = buildUser();
+        user.setRoutes(routes);
+
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
+
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .toList();
+
+        assertEquals("routes", constraintViolations.get(0).getPropertyPath().toString());
+        assertEquals("Route code must be of A/B/C", constraintViolations.get(0).getMessage());
     }
 
 }

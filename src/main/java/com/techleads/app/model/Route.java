@@ -26,6 +26,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 //@Builder
+@ToString
 public class Route {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,4 +36,9 @@ public class Route {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private Users user;
+
+	public Route(Integer routeId,String routingSequenceCode){
+		this.routeId=routeId;
+		this.routingSequenceCode=routingSequenceCode;
+	}
 }
