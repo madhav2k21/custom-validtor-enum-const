@@ -27,44 +27,53 @@ public class UsersTest {
         assertTrue(violations.isEmpty());
 
     }
-    
+
 
     @Test
-    public void testUserWithViolations() {
+    public void testUserWith_location_Empty_Violations() {
         Users user = buildUser();
-        user.setLocation("");
+
+        user.setLocation(null);
+
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
         assertEquals(2, violations.size());
-        Iterator<ConstraintViolation<Users>> iterator = violations.iterator();
 
-        assertEquals("location",violations.iterator().next().getPropertyPath().toString());
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .sorted((a,b)-> a.getMessage().compareTo(b.getMessage()))
+                .toList();
 
-//        System.out.println(violations.iterator().next());
+        assertEquals("location", constraintViolations.get(0).getPropertyPath().toString());
+        assertEquals("Location field must not be empty", constraintViolations.get(0).getMessage());
+        assertEquals("Location must be of HYD/CHN/BLR", constraintViolations.get(1).getMessage());
+    }
+    @Test
+    public void testUserWith_location_WrongValue_Violations() {
+        Users user = buildUser();
 
+        user.setLocation("test");
 
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
 
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream().toList();
 
-
-//        while (iterator.hasNext()){
-//            System.out.println(iterator.next().getMessage());
-//        }
-//        System.out.println("{} "+violations.iterator().next().getMessage());
-//        assertEquals("",violations.iterator().next().getMessage());
+        assertEquals("location", constraintViolations.get(0).getPropertyPath().toString());
+        assertEquals("Location must be of HYD/CHN/BLR", constraintViolations.get(0).getMessage().toString());
     }
 
-	public Users buildUser() {
+    public Users buildUser() {
 
-		Users u = new Users();
+        Users u = new Users();
 
-		u.setId(101);
-		u.setLocation("HYD_CDE");
-		u.setName("Madhav");
+        u.setId(101);
+        u.setLocation("HYD_CDE");
+        u.setName("Madhav");
 
-		List<Route> routes = new ArrayList<>();
-		routes.add(new Route(101, "A", u));
-		u.setRoutes(routes);
+        List<Route> routes = new ArrayList<>();
+        routes.add(new Route(101, "A", u));
+        u.setRoutes(routes);
 
-		return u;
-	}
+        return u;
+    }
 
 }
