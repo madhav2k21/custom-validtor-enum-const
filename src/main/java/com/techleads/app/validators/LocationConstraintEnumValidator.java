@@ -12,13 +12,18 @@ public class LocationConstraintEnumValidator implements ConstraintValidator<ICon
 
 	@Override
 	public void initialize(IConstraintEnumLocation constraintAnnotation) {
+
 		acceptedValues = Stream.of(constraintAnnotation.enumClass().getEnumConstants()).map(Enum::name)
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public boolean isValid(String value, ConstraintValidatorContext context) {
-		return acceptedValues.contains(value);
+
+		if((null==value) || (value.equals("") || value.equals("  ")||value.equals(" "))){
+			return true;
+		}
+		return  (acceptedValues.contains(value));
 	}
 
 }

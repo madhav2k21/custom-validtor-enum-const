@@ -42,7 +42,7 @@ public class UsersTest {
         user.setLocation(customValue);
 
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
-        assertEquals(2, violations.size());
+        assertEquals(1, violations.size());
 
         List<ConstraintViolation<Users>> constraintViolations = violations.stream()
                 .sorted((a, b) -> a.getMessage().compareTo(b.getMessage()))
@@ -50,7 +50,6 @@ public class UsersTest {
 
         assertThat("location").isEqualTo(constraintViolations.get(0).getPropertyPath().toString());
         assertThat("Location field must not be empty").isEqualTo(constraintViolations.get(0).getMessage());
-        assertThat("Location must be of HYD/CHN/BLR").isEqualTo(constraintViolations.get(1).getMessage());
     }
 
 
@@ -62,7 +61,7 @@ public class UsersTest {
         user.setLocation(input);
 
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
-        assertEquals(2, violations.size());
+        assertEquals(1, violations.size());
 
         List<ConstraintViolation<Users>> constraintViolations = violations.stream()
                 .sorted((a, b) -> a.getMessage().compareTo(b.getMessage()))
@@ -70,7 +69,6 @@ public class UsersTest {
 
         assertThat("location").isEqualTo(constraintViolations.get(0).getPropertyPath().toString());
         assertThat("Location field must not be empty").isEqualTo(constraintViolations.get(0).getMessage());
-        assertThat("Location must be of HYD/CHN/BLR").isEqualTo(constraintViolations.get(1).getMessage());
     }
 
     static Stream<String> blankOrNullStrings() {
