@@ -21,10 +21,12 @@ public class RouteConstraintEnumValidator implements ConstraintValidator<IConstr
 
     @Override
     public boolean isValid(List<Route> value, ConstraintValidatorContext context) {
-
+        if (((null == value) || (value.size() == 0))) {
+            return true;
+        }
 
         List<String> routes = value.stream().map(v -> v.getRoutingSequenceCode()).collect(Collectors.toList());
-        return null == value || acceptedValues.containsAll(routes);
+        return acceptedValues.containsAll(routes);
     }
 
 }

@@ -11,7 +11,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -114,12 +117,13 @@ public class UsersTest {
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @NullSource
+    @MethodSource("emptyRoutes")
     public void testUserWith_routes_Empty_And_Null_Violations(List<Route> routes) {
         Users user = buildUser();
         user.setRoutes(routes);
 
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
-        assertEquals(2, violations.size());
+        assertEquals(1, violations.size());
 
         List<ConstraintViolation<Users>> constraintViolations = violations.stream()
                 .sorted((a, b) -> b.getMessage().compareTo(a.getMessage()))
@@ -127,7 +131,6 @@ public class UsersTest {
 
         assertEquals("routes", constraintViolations.get(0).getPropertyPath().toString());
         assertEquals("Route field must not be empty", constraintViolations.get(0).getMessage());
-        assertEquals("Route code must be of A/B/C", constraintViolations.get(1).getMessage());
     }
 
 
@@ -167,6 +170,14 @@ public class UsersTest {
         return Stream.of(
                 Arguments.of(Arrays.asList(new Route(101, "test"), new Route(102, "AD"))),
                 Arguments.of(Arrays.asList(new Route(103, "DA"), new Route(104, "EF")))
+        );
+    }
+
+    private static Stream<Arguments> emptyRoutes() {
+        List<Route> routes = new ArrayList<>();
+        return Stream.of(
+
+                Arguments.of(routes)
         );
     }
 
