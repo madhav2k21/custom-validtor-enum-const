@@ -23,7 +23,7 @@ public @interface IConstraintEnumRoute {
 
 	Class<? extends Enum<?>> enumClass();
 
-	String message() default "Route code must be of A/B/C";
+	String message() default "{Route.valid.routing-sequence-codes.msg}";;
 
 	Class<?>[] groups() default {};
 

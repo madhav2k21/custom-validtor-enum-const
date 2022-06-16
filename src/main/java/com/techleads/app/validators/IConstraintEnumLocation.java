@@ -23,7 +23,7 @@ public @interface IConstraintEnumLocation {
 
 	Class<? extends Enum<?>> enumClass();
 
-	String message() default "Location must be of HYD/CHN/BLR";
+	String message() default "{Users.valid.locations.msg}";
 
 	Class<?>[] groups() default {};
 

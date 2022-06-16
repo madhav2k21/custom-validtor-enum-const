@@ -12,8 +12,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.executable.ValidateOnExecution;
 
 import com.techleads.app.validators.IConstraintEnumLocation;
 import com.techleads.app.validators.IConstraintEnumRoute;
@@ -39,12 +41,14 @@ public class Users {
 	private Integer id;
 	private String name;
 	@IConstraintEnumLocation(enumClass = LocationCodeEnum.class)
-	@NotBlank(message = "Location field must not be empty")
+	@NotBlank(message = "{Users.not-empty.location.msg}")
 	private String location;
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@IConstraintEnumRoute(enumClass = RouteCodeEnum.class)
-	@NotEmpty(message = "Route field must not be empty")
+	@NotEmpty(message = "{Route.not-empty.routing-sequence-codes.msg}")
 	List<Route> routes;
+	@Valid
+	Skill skills;
 
 }
