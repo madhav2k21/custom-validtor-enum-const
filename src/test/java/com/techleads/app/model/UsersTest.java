@@ -18,8 +18,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UsersTest {
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -27,11 +26,31 @@ public class UsersTest {
 
     @Test
     public void testUserNoViolations() {
+
         Users user = buildUser();
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
 
         assertTrue(violations.isEmpty());
         assertThat(violations.size()).isEqualTo(0);
+    }
+
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @NullSource
+    @ValueSource(strings = {""})
+    public void testUserWith_Course_couseName_Empty_And_Null_Violations(String courseName) {
+        Users user = buildUser();
+        List<Courses> courses = Arrays.asList(new Courses(101, courseName));
+        user.setCourses(courses);
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .sorted((a, b) -> a.getMessage().compareTo(b.getMessage()))
+                .toList();
+        constraintViolations.stream().forEach(v-> System.out.println("{} "+v.getMessage()));
+        assertFalse(violations.isEmpty());
+        assertThat(violations.size()).isEqualTo(1);
+        assertThat(constraintViolations.get(0).getPropertyPath().toString()).isEqualTo("courses[0].courseName");
+        assertThat(constraintViolations.get(0).getMessage()).isEqualTo("Course Name must not be empty");
     }
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
@@ -186,6 +205,35 @@ public class UsersTest {
     }
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @MethodSource("invalidCourses")
+    public void testUserWith_Course_Invalid_Cources_Violations(List<Courses> courses) {
+        Users user = buildUser();
+        user.setCourses(courses);
+
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
+
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .toList();
+
+        assertEquals("courses[0].courseName", constraintViolations.get(0).getPropertyPath().toString());
+        assertEquals("Course name must of Springboot/AWS/Miroservices", constraintViolations.get(0).getMessage());
+    }
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @MethodSource("validCourses")
+    public void testUserWith_Course_Valid_Cources_ZeroViolations(List<Courses> courses) {
+        Users user = buildUser();
+        user.setCourses(courses);
+
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        assertEquals(0, violations.size());
+        assertThat(violations.isEmpty()).isTrue();
+
+
+    }
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @MethodSource("validRoutes")
     public void testUserWith_routes_Accepted_Codes_ZeroViolations(List<Route> routes) {
         Users user = buildUser();
@@ -205,6 +253,26 @@ public class UsersTest {
         return Stream.of(
                 Arguments.of(Arrays.asList(new Route(101, "test"), new Route(102, "AD"))),
                 Arguments.of(Arrays.asList(new Route(103, "DA"), new Route(104, "EF")))
+        );
+    }
+
+    private static Stream<Arguments> invalidCourses() {
+        return Stream.of(
+                Arguments.of(Arrays.asList(new Courses(101, "test"), new Courses(102, "AD"))),
+                Arguments.of(Arrays.asList(new Courses(101, "test"), new Courses(102, "AD"))),
+                Arguments.of(Arrays.asList(new Courses(103, "DA"), new Courses(104, "EF"))),
+                Arguments.of(Arrays.asList(new Courses(101, "test"), new Courses(102, "AD")))
+        );
+    }
+
+    private static Stream<Arguments> validCourses() {
+        return Stream.of(
+                Arguments.of(Arrays.asList(new Courses(101, "Springboot")
+                        , new Courses(102, "Microservices"))),
+                Arguments.of(Arrays.asList(new Courses(101, "Springboot")
+                        , new Courses(102, "Microservices"))),
+                Arguments.of(Arrays.asList(new Courses(103, "AWS"),
+                        new Courses(104, "Data Science")))
         );
     }
 
@@ -235,6 +303,9 @@ public class UsersTest {
         routes.add(new Route(101, "A", u));
         u.setRoutes(routes);
         u.setSkills(new Skill(101,"test"));
+//        List<Courses> courses = Arrays.asList(new Courses());
+        List<Courses> courses = Arrays.asList(new Courses(101,"Springboot"),new Courses(102,"AWS"));
+        u.setCourses(courses);
 
         return u;
     }

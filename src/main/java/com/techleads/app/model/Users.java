@@ -37,6 +37,7 @@ import org.springframework.validation.annotation.Validated;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+//@Validated
 public class Users {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,8 +52,8 @@ public class Users {
 	@NotEmpty(message = "{Route.not-empty.routing-sequence-codes.msg}")
 	private List<Route> routes;
 	@Valid
-//	@NotNull
-//	@NotNull(message = "skill should not be empty")
 	private Skill skills;
+//	@NotNull
+	private List<@Valid Courses> courses;
 
 }
