@@ -15,6 +15,7 @@ import javax.persistence.Transient;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.executable.ValidateOnExecution;
 
 import com.techleads.app.validators.IConstraintEnumLocation;
@@ -28,6 +29,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.validation.annotation.Validated;
 
 @Entity
 @Setter
@@ -47,8 +49,10 @@ public class Users {
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@IConstraintEnumRoute(enumClass = RouteCodeEnum.class)
 	@NotEmpty(message = "{Route.not-empty.routing-sequence-codes.msg}")
-	List<Route> routes;
+	private List<Route> routes;
 	@Valid
-	Skill skills;
+//	@NotNull
+//	@NotNull(message = "skill should not be empty")
+	private Skill skills;
 
 }

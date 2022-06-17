@@ -29,9 +29,20 @@ public class UsersTest {
     public void testUserNoViolations() {
         Users user = buildUser();
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .sorted((a, b) -> a.getMessage().compareTo(b.getMessage()))
+                .toList();
+//        assertTrue(violations.isEmpty());
+        assertThat(violations.size()).isEqualTo(2);
 
-        assertTrue(violations.isEmpty());
-        assertThat(violations.size()).isEqualTo(0);
+        constraintViolations.stream().forEach(v-> System.out.println("{} "+v.getPropertyPath()));
+//        assertThat("id").isEqualTo(constraintViolations.get(0).getPropertyPath().toString());
+        assertThat(constraintViolations.get(0).getPropertyPath().toString()).isEqualTo("skills.id");
+        assertThat(constraintViolations.get(1).getPropertyPath().toString()).isEqualTo("skills.skillName");
+        assertThat(constraintViolations.get(0).getMessage()).isEqualTo("Please enter id");
+        assertThat(constraintViolations.get(1).getMessage()).isEqualTo("skillName must not be");
+
+//        assertThat("skillName must not be").isEqualTo(constraintViolations.get(0).getMessage());
 
     }
 
@@ -199,6 +210,7 @@ public class UsersTest {
         List<Route> routes = new ArrayList<>();
         routes.add(new Route(101, "A", u));
         u.setRoutes(routes);
+        u.setSkills(new Skill());
 
         return u;
     }
