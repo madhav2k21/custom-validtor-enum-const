@@ -29,20 +29,44 @@ public class UsersTest {
     public void testUserNoViolations() {
         Users user = buildUser();
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
+
+        assertTrue(violations.isEmpty());
+        assertThat(violations.size()).isEqualTo(0);
+    }
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @NullSource
+    public void testUserWith_skillsId_Empty_And_Null_Violations(Integer skillId) {
+        Users user = buildUser();
+
+        user.getSkills().setId(skillId);
+
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
         List<ConstraintViolation<Users>> constraintViolations = violations.stream()
                 .sorted((a, b) -> a.getMessage().compareTo(b.getMessage()))
                 .toList();
-//        assertTrue(violations.isEmpty());
-        assertThat(violations.size()).isEqualTo(2);
+        assertThat(violations.size()).isEqualTo(1);
 
-        constraintViolations.stream().forEach(v-> System.out.println("{} "+v.getPropertyPath()));
-//        assertThat("id").isEqualTo(constraintViolations.get(0).getPropertyPath().toString());
         assertThat(constraintViolations.get(0).getPropertyPath().toString()).isEqualTo("skills.id");
-        assertThat(constraintViolations.get(1).getPropertyPath().toString()).isEqualTo("skills.skillName");
         assertThat(constraintViolations.get(0).getMessage()).isEqualTo("Please enter id");
-        assertThat(constraintViolations.get(1).getMessage()).isEqualTo("skillName must not be");
+    }
 
-//        assertThat("skillName must not be").isEqualTo(constraintViolations.get(0).getMessage());
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @NullSource
+    @ValueSource(strings = {""})
+    public void testUserWith_skillsName_Empty_And_Null_Violations(String skillName) {
+        Users user = buildUser();
+
+        user.getSkills().setSkillName(skillName);
+
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .sorted((a, b) -> a.getMessage().compareTo(b.getMessage()))
+                .toList();
+        assertThat(violations.size()).isEqualTo(1);
+
+        assertThat(constraintViolations.get(0).getPropertyPath().toString()).isEqualTo("skills.skillName");
+        assertThat("skillName must not be").isEqualTo(constraintViolations.get(0).getMessage());
 
     }
 
@@ -210,7 +234,7 @@ public class UsersTest {
         List<Route> routes = new ArrayList<>();
         routes.add(new Route(101, "A", u));
         u.setRoutes(routes);
-        u.setSkills(new Skill());
+        u.setSkills(new Skill(101,"test"));
 
         return u;
     }

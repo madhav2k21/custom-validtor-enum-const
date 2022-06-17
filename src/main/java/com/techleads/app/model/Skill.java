@@ -21,4 +21,5 @@ public class Skill {
     private Integer id;
     @NotBlank(message = "skillName must not be")
     private String skillName;
+
 }
