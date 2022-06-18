@@ -11,10 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -211,13 +208,19 @@ public class UsersTest {
         user.setCourses(courses);
 
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
-        assertEquals(1, violations.size());
+        assertEquals(2, violations.size());
 
         List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .sorted(Comparator.comparing(a -> a.getPropertyPath().toString()))
                 .toList();
 
+        constraintViolations.forEach(v->{
+            System.out.println("{} "+v.getPropertyPath().toString());
+        });
         assertEquals("courses[0].courseName", constraintViolations.get(0).getPropertyPath().toString());
+        assertEquals("courses[1].courseName", constraintViolations.get(1).getPropertyPath().toString());
         assertEquals("Course name must of Springboot/AWS/Miroservices", constraintViolations.get(0).getMessage());
+        assertEquals("Course name must of Springboot/AWS/Miroservices", constraintViolations.get(1).getMessage());
     }
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
