@@ -45,7 +45,7 @@ public class UsersTest {
         List<ConstraintViolation<Users>> constraintViolations = violations.stream()
                 .sorted(Comparator.comparing(ConstraintViolation::getMessage))
                 .toList();
-        constraintViolations.stream().forEach(v-> System.out.println("{} "+v.getMessage()));
+        constraintViolations.stream().forEach(v -> System.out.println("{} " + v.getMessage()));
         assertFalse(violations.isEmpty());
         assertThat(violations.size()).isEqualTo(1);
         assertThat(constraintViolations.get(0).getPropertyPath().toString()).isEqualTo("courses[0].courseName");
@@ -62,12 +62,47 @@ public class UsersTest {
         List<ConstraintViolation<Users>> constraintViolations = violations.stream()
                 .sorted(Comparator.comparing(ConstraintViolation::getMessage))
                 .toList();
-        constraintViolations.stream().forEach(v-> System.out.println("{} "+v.getMessage()));
-        constraintViolations.stream().forEach(v-> System.out.println(v.getPropertyPath().toString()));
+        constraintViolations.stream().forEach(v -> System.out.println("{} " + v.getMessage()));
+        constraintViolations.stream().forEach(v -> System.out.println(v.getPropertyPath().toString()));
         assertThat(violations.isEmpty()).isFalse();
         assertThat(violations.size()).isEqualTo(1);
         assertThat(constraintViolations.get(0).getPropertyPath().toString()).isEqualTo("courses");
         assertThat(constraintViolations.get(0).getMessage()).isEqualTo("Courses must not be empty or null");
+    }
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @MethodSource("invalidCourses")
+    public void testUserWith_Course_Invalid_Cources_Violations(List<Courses> courses) {
+        Users user = buildUser();
+        user.setCourses(courses);
+
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        assertEquals(2, violations.size());
+
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .sorted(Comparator.comparing(a -> a.getPropertyPath().toString()))
+                .toList();
+
+        constraintViolations.forEach(v -> {
+            System.out.println("{} " + v.getPropertyPath().toString());
+        });
+        assertEquals("courses[0].courseName", constraintViolations.get(0).getPropertyPath().toString());
+        assertEquals("courses[1].courseName", constraintViolations.get(1).getPropertyPath().toString());
+        assertEquals("Course name must of Springboot/AWS/Miroservices", constraintViolations.get(0).getMessage());
+        assertEquals("Course name must of Springboot/AWS/Miroservices", constraintViolations.get(1).getMessage());
+    }
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @MethodSource("validCourses")
+    public void testUserWith_Course_Valid_Cources_ZeroViolations(List<Courses> courses) {
+        Users user = buildUser();
+        user.setCourses(courses);
+
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        assertEquals(0, violations.size());
+        assertThat(violations.isEmpty()).isTrue();
+
+
     }
 
 
@@ -222,40 +257,6 @@ public class UsersTest {
         assertEquals("Route code must be of A/B/C", constraintViolations.get(0).getMessage());
     }
 
-    @ParameterizedTest(name = "#{index} - Run test with args={0}")
-    @MethodSource("invalidCourses")
-    public void testUserWith_Course_Invalid_Cources_Violations(List<Courses> courses) {
-        Users user = buildUser();
-        user.setCourses(courses);
-
-        Set<ConstraintViolation<Users>> violations = validator.validate(user);
-        assertEquals(2, violations.size());
-
-        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
-                .sorted(Comparator.comparing(a -> a.getPropertyPath().toString()))
-                .toList();
-
-        constraintViolations.forEach(v->{
-            System.out.println("{} "+v.getPropertyPath().toString());
-        });
-        assertEquals("courses[0].courseName", constraintViolations.get(0).getPropertyPath().toString());
-        assertEquals("courses[1].courseName", constraintViolations.get(1).getPropertyPath().toString());
-        assertEquals("Course name must of Springboot/AWS/Miroservices", constraintViolations.get(0).getMessage());
-        assertEquals("Course name must of Springboot/AWS/Miroservices", constraintViolations.get(1).getMessage());
-    }
-
-    @ParameterizedTest(name = "#{index} - Run test with args={0}")
-    @MethodSource("validCourses")
-    public void testUserWith_Course_Valid_Cources_ZeroViolations(List<Courses> courses) {
-        Users user = buildUser();
-        user.setCourses(courses);
-
-        Set<ConstraintViolation<Users>> violations = validator.validate(user);
-        assertEquals(0, violations.size());
-        assertThat(violations.isEmpty()).isTrue();
-
-
-    }
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @MethodSource("validRoutes")
@@ -344,9 +345,9 @@ public class UsersTest {
         List<Route> routes = new ArrayList<>();
         routes.add(new Route(101, "A", u));
         u.setRoutes(routes);
-        u.setSkills(new Skill(101,"test"));
+        u.setSkills(new Skill(101, "test"));
 //        List<Courses> courses = Arrays.asList(new Courses());
-        List<Courses> courses = Arrays.asList(new Courses(101,"Springboot"),new Courses(102,"AWS"));
+        List<Courses> courses = Arrays.asList(new Courses(101, "Springboot"), new Courses(102, "AWS"));
         u.setCourses(courses);
 
         return u;
