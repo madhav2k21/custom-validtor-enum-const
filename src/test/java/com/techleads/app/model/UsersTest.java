@@ -1,5 +1,6 @@
 package com.techleads.app.model;
 
+import com.techleads.app.validators.CourseNamesConstants;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,6 +13,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +43,7 @@ public class UsersTest {
         user.setCourses(courses);
         Set<ConstraintViolation<Users>> violations = validator.validate(user);
         List<ConstraintViolation<Users>> constraintViolations = violations.stream()
-                .sorted((a, b) -> a.getMessage().compareTo(b.getMessage()))
+                .sorted(Comparator.comparing(ConstraintViolation::getMessage))
                 .toList();
         constraintViolations.stream().forEach(v-> System.out.println("{} "+v.getMessage()));
         assertFalse(violations.isEmpty());
@@ -49,6 +51,24 @@ public class UsersTest {
         assertThat(constraintViolations.get(0).getPropertyPath().toString()).isEqualTo("courses[0].courseName");
         assertThat(constraintViolations.get(0).getMessage()).isEqualTo("Course Name must not be empty");
     }
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @NullSource
+    @MethodSource("emptyCourses")
+    public void testUserWith_Course_object_Empty_And_Null_Violations(List<Courses> courses) {
+        Users user = buildUser();
+        user.setCourses(courses);
+        Set<ConstraintViolation<Users>> violations = validator.validate(user);
+        List<ConstraintViolation<Users>> constraintViolations = violations.stream()
+                .sorted(Comparator.comparing(ConstraintViolation::getMessage))
+                .toList();
+        constraintViolations.stream().forEach(v-> System.out.println("{} "+v.getMessage()));
+        assertThat(violations.isEmpty()).isFalse();
+        assertThat(violations.size()).isEqualTo(1);
+//        assertThat(constraintViolations.get(0).getPropertyPath().toString()).isEqualTo("courses[0].courseName");
+//        assertThat(constraintViolations.get(0).getMessage()).isEqualTo("Course Name must not be empty");
+    }
+
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @NullSource
@@ -269,13 +289,23 @@ public class UsersTest {
     }
 
     private static Stream<Arguments> validCourses() {
+        List<String> courseNames = CourseNamesConstants.courseNames()
+                .stream().collect(Collectors.toList());
+
+        List<Courses> courses = new ArrayList<>();
+        courseNames.stream().forEach(courseName -> {
+            courses.add(new Courses(new Random().nextInt(), courseName));
+        });
+
         return Stream.of(
                 Arguments.of(Arrays.asList(new Courses(101, "Springboot")
                         , new Courses(102, "Microservices"))),
                 Arguments.of(Arrays.asList(new Courses(101, "Springboot")
                         , new Courses(102, "Microservices"))),
                 Arguments.of(Arrays.asList(new Courses(103, "AWS"),
-                        new Courses(104, "Data Science")))
+                        new Courses(104, "Data Science"))),
+                Arguments.of(courses)
+
         );
     }
 

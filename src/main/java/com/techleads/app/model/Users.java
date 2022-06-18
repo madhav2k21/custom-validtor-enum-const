@@ -53,7 +53,7 @@ public class Users {
 	private List<Route> routes;
 	@Valid
 	private Skill skills;
-//	@NotNull
+	@NotEmpty(message = "Courses must not be empty or null")
 	private List<@Valid Courses> courses;
 
 }
