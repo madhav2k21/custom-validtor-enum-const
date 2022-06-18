@@ -63,10 +63,11 @@ public class UsersTest {
                 .sorted(Comparator.comparing(ConstraintViolation::getMessage))
                 .toList();
         constraintViolations.stream().forEach(v-> System.out.println("{} "+v.getMessage()));
+        constraintViolations.stream().forEach(v-> System.out.println(v.getPropertyPath().toString()));
         assertThat(violations.isEmpty()).isFalse();
         assertThat(violations.size()).isEqualTo(1);
-//        assertThat(constraintViolations.get(0).getPropertyPath().toString()).isEqualTo("courses[0].courseName");
-//        assertThat(constraintViolations.get(0).getMessage()).isEqualTo("Course Name must not be empty");
+        assertThat(constraintViolations.get(0).getPropertyPath().toString()).isEqualTo("courses");
+        assertThat(constraintViolations.get(0).getMessage()).isEqualTo("Courses must not be empty or null");
     }
 
 
@@ -316,6 +317,14 @@ public class UsersTest {
                 Arguments.of(routes)
         );
     }
+
+    private static Stream<Arguments> emptyCourses() {
+        List<Courses> courses = new ArrayList<>();
+        return Stream.of(
+                Arguments.of(courses)
+        );
+    }
+
 
     private static Stream<Arguments> validRoutes() {
         return Stream.of(
